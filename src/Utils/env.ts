@@ -1,6 +1,6 @@
 const env = {
   get(key: string, defaultValue: string = "") {
-    if (key in process.env && process.env[key]) {
+    if (process.env[key]) {
       return process.env[key];
     }
     if (defaultValue) {
@@ -10,9 +10,9 @@ const env = {
     return "";
   },
 
-  getInt(key: string, defaultValue: number = 0) {
+  getInt(key: string, defaultValue: number = 3000) {
     const getEnv = this.get(key);
-    return typeof getEnv === "string" ? +getEnv : defaultValue;
+    return typeof getEnv === "string" && +getEnv !== 0 ? +getEnv : defaultValue;
   },
 };
 
