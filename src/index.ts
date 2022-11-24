@@ -2,6 +2,7 @@ import { Server } from "socket.io";
 import { App } from "uWebSockets.js";
 import pino from "pino";
 import JsonResponse from "./Utils/JsonResponse";
+import env from "./Utils/env";
 
 export const logger = pino();
 
@@ -24,7 +25,7 @@ app.get("/api/checkUser", (res, req) => {
   });
 });
 
-app.listen(3001, (token) => {
+app.listen(env.getInt("PORT", 3001), (token) => {
   if (!token) {
     logger.warn("port already in use");
   }
