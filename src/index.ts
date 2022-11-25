@@ -22,7 +22,7 @@ io.on("connection", (socket) => {
   });
 
   apis.forEach((item) => {
-    app[item.apiType](item.url, (res, req) => item.handler({ socket, req, res }));
+    app[item.apiType](item.url, (res, req) => item.handler({ socket, req, res, io }));
   });
 });
 

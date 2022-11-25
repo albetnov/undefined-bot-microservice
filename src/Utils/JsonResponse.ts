@@ -16,10 +16,12 @@ export default class JsonResponse {
 
   addHeaders(name: string, value: string) {
     this.headers.push({ name, value });
+    return this;
   }
 
   setStatus(status: string) {
     this.status = status;
+    return this;
   }
 
   send(body: object) {

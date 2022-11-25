@@ -1,8 +1,8 @@
-import { HttpResponse } from "uWebSockets.js";
+import { HttpRequest, HttpResponse } from "uWebSockets.js";
 
 type TPromiseObjectNull = Promise<{ [key: string]: any } | null>;
 
-export default (res: HttpResponse): TPromiseObjectNull =>
+const parseBody = (res: HttpResponse): TPromiseObjectNull =>
   new Promise((resolve, reject) => {
     let buffer: Buffer;
 
@@ -11,9 +11,12 @@ export default (res: HttpResponse): TPromiseObjectNull =>
 
       if (isLast) {
         const toParse = buffer ? Buffer.concat([buffer, chunk]) : chunk;
-        const resolveValue = JSON.parse(toParse as unknown as string);
-
-        resolve(resolveValue);
+        try {
+          const resolveValue = JSON.parse(toParse as unknown as string);
+          resolve(resolveValue);
+        } catch {
+          reject(null);
+        }
       } else {
         const concatValue = buffer ? [buffer, chunk] : [chunk];
         buffer = Buffer.concat(concatValue);
@@ -22,3 +25,31 @@ export default (res: HttpResponse): TPromiseObjectNull =>
 
     res.onAborted(() => reject(null));
   });
+
+interface JsonResult {
+  data: any;
+  error: number;
+}
+
+const getJson = async (req: HttpRequest, res: HttpResponse) => {
+  const result: JsonResult = {
+    data: null,
+    error: 0,
+  };
+
+  if (req.getHeader("content-type") !== "application/json") {
+    result.error = 2;
+  }
+
+  try {
+    if (result.error === 0) {
+      result.data = await parseBody(res);
+    }
+  } catch {
+    result.error = 1;
+  }
+
+  return result;
+};
+
+export default getJson;
