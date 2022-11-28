@@ -12,7 +12,6 @@ export default class RefreshCacheService extends BaseService {
     const json = await getJson(req, res);
 
     if (autoHandle(json.error, res)) {
-      console.log("blocked");
       return;
     }
 

@@ -1,7 +1,7 @@
-import BaseService from "../Services/BaseService";
+import ChannelListService from "../Services/ChannelListService";
 import RefreshCacheService from "../Services/RefreshCacheService";
-import RouteLoader from "./RouteLoader";
+import RouteLoader, { RouteHandler } from "./RouteLoader";
 
-const apis: BaseService[] = [RouteLoader(RefreshCacheService)];
+const apis: RouteHandler[] = [RouteLoader(RefreshCacheService), RouteLoader(ChannelListService)];
 
 export default apis;

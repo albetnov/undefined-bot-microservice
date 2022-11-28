@@ -41,6 +41,10 @@ const getJson = async (req: HttpRequest, res: HttpResponse) => {
     result.error = 2;
   }
 
+  if (req.getMethod() !== "post" && req.getMethod() !== "put" && req.getMethod() !== "patch") {
+    result.error = 3;
+  }
+
   try {
     if (result.error === 0) {
       result.data = await parseBody(res);
