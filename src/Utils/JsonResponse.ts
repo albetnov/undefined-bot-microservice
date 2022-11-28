@@ -12,6 +12,11 @@ export default class JsonResponse {
 
   constructor(res: HttpResponse) {
     this.res = res;
+    this.addHeaders = this.addHeaders.bind(this);
+    this.setStatus = this.setStatus.bind(this);
+    this.send = this.send.bind(this);
+    this.addHeaders("Access-Control-Allow-Origin", "*");
+    this.addHeaders("Content-Type", "application/json");
   }
 
   addHeaders(name: string, value: string) {
@@ -25,7 +30,7 @@ export default class JsonResponse {
   }
 
   send(body: object) {
-    const res = this.res.writeStatus(this.status).writeHeader("Content-Type", "application/json");
+    const res = this.res.writeStatus(this.status);
     this.headers.forEach((item) => {
       res.writeHeader(item.name, item.value);
     });
