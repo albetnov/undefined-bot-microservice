@@ -1,27 +1,20 @@
-import { HttpResponse } from "uWebSockets.js";
-import { logger } from "..";
 import { ApiType } from "../Utils/ApiType";
 import JsonResponse from "../Utils/JsonResponse";
-import BaseService, { ServiceHandler } from "./BaseService";
+import AsyncBaseService from "./AsyncBaseService";
+import { ServiceHandler } from "./BaseService";
+import OnAbortHandler from "./OnAbortHandler";
 
 interface ChannelListResponse {
   list: object[];
   status: string;
 }
 
-export default class ChannelListService extends BaseService {
+export default class ChannelListService extends AsyncBaseService {
   url: string = "/channelList";
   apiType = ApiType.GET;
 
-  handler({ req, res, io, socket }: ServiceHandler) {
-    function onAbortedOrFinishedResponse(res: HttpResponse) {
-      if (res.id === -1) {
-        logger.warn("[Async Service]: Warning: Same Response ID detected.");
-      }
-
-      /* Mark this response already accounted for */
-      res.id = -1;
-    }
+  handler({ res, io }: ServiceHandler) {
+    const onAbort = new OnAbortHandler(res, this.url);
 
     const promise = () => {
       return new Promise((resolve, reject) => {
@@ -41,11 +34,9 @@ export default class ChannelListService extends BaseService {
     };
 
     promise().then(() => {
-      onAbortedOrFinishedResponse(res);
+      onAbort.checkRequest(res);
     });
 
-    res.onAborted(() => {
-      onAbortedOrFinishedResponse(res);
-    });
+    return onAbort;
   }
 }
