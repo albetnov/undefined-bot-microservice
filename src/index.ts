@@ -1,47 +1,44 @@
-import { Server } from "socket.io";
-import { App } from "uWebSockets.js";
 import pino from "pino";
-import JsonResponse from "./Utils/JsonResponse";
 import env from "./Utils/env";
 import apis from "./Routes/api";
 import { config } from "dotenv";
 import Kernel from "./Middlewares/Kernel";
+import fastify from "fastify";
+import fastifyIO from "fastify-socket.io";
 config();
+import cors from "@fastify/cors";
 
 export const logger = pino();
 
-const app = App();
-const io = new Server();
+const server = fastify();
+server.register(fastifyIO);
+server.register(cors);
 
-io.attachApp(app);
-
-Kernel.forEach((item) => {
-  io.use((socket, next) => item({ socket, next }));
+apis.forEach((item) => {
+  server[item.apiType](item.url, (req, res) => {
+    item.routeHandler()({ req, res, io: server.io });
+  });
 });
 
-io.on("connection", (socket) => {
-  logger.info("[Connection]: Client connection established");
+server.get("/api/checkUser", () => {
+  return { count: server.io.engine.clientsCount };
+});
 
-  socket.conn.once("upgrade", () => {
-    logger.info("[Connection]: upgraded transport", socket.conn.transport.name);
+server.ready().then(() => {
+  Kernel.forEach((item) => {
+    server.io.use((socket, next) => item({ socket, next }));
   });
 
-  apis.forEach((item) => {
-    app[item.apiType](item.url, (res, req) => {
-      item.routeHandler()({ req, res, socket, io });
+  server.io.on("connection", (socket) => {
+    logger.info("[Connection]: Client connection established");
+
+    socket.conn.once("upgrade", () => {
+      logger.info("[Connection]: upgraded transport", socket.conn.transport.name);
     });
   });
 });
 
-app.get("/api/checkUser", (res, req) => {
-  return new JsonResponse(res).send({
-    count: io.engine.clientsCount,
-  });
+server.listen({
+  port: env.getInt("PORT", 3000),
 });
-
-app.listen(env.getInt("PORT", 3001), (token) => {
-  if (!token) {
-    logger.warn("[WS Service]: port already in use");
-  }
-  logger.info("[WS Service]: Listening in port " + env.getInt("PORT", 3001));
-});
+logger.info("Listening on port: 3000");

@@ -1,42 +1,24 @@
 import { ApiType } from "../Utils/ApiType";
-import JsonResponse from "../Utils/JsonResponse";
-import AcknowledgeService from "./AcknowledgeService";
-import { ServiceHandler } from "./BaseService";
-import OnAbortHandler from "./OnAbortHandler";
+import BaseService, { ServiceHandler } from "./BaseService";
 
 interface ChannelListResponse {
   list: object[];
   status: string;
 }
 
-export default class ChannelListService extends AcknowledgeService {
+export default class ChannelListService extends BaseService {
   url: string = "/channelList";
   apiType = ApiType.GET;
 
   handler({ res, io }: ServiceHandler) {
-    const onAbort = new OnAbortHandler(res, this.url);
-
-    const promise = () => {
-      return new Promise((resolve, reject) => {
-        io.timeout(5000).emit("ChannelList", (err: any, response: ChannelListResponse[]) => {
-          if (err) {
-            resolve(
-              new JsonResponse(res).setStatus("500").send({
-                error:
-                  "Failed to fetch channel list. Bot didn't respond. Or took longer than 5000ms.",
-              })
-            );
-          } else {
-            resolve(new JsonResponse(res).send({ list: response[0].list }));
-          }
+    io.timeout(5000).emit("ChannelList", (err: any, response: ChannelListResponse[]) => {
+      if (err) {
+        res.status(500).send({
+          error: "Cannot fetch haiya cibai",
         });
-      });
-    };
-
-    promise().then(() => {
-      onAbort.checkRequest(res);
+      } else {
+        res.send({ list: response[0].list || "dunno anjg" });
+      }
     });
-
-    return onAbort;
   }
 }

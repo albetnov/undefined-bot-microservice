@@ -1,11 +1,10 @@
+import { FastifyReply, FastifyRequest } from "fastify";
 import { Server, Socket } from "socket.io";
-import { HttpRequest, HttpResponse } from "uWebSockets.js";
 import { ApiType } from "../Utils/ApiType";
 
 export interface ServiceHandler {
-  req: HttpRequest;
-  res: HttpResponse;
-  socket: Socket;
+  req: FastifyRequest;
+  res: FastifyReply;
   io: Server;
 }
 
@@ -16,5 +15,10 @@ export interface SuccessResponse {
 export default abstract class BaseService {
   abstract apiType: ApiType;
   abstract url: string;
-  abstract handler({ socket, req, res, io }: ServiceHandler): void;
+
+  constructor() {
+    this.handler = this.handler.bind(this);
+  }
+
+  abstract handler({ req, res, io }: ServiceHandler): void;
 }
