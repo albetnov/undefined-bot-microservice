@@ -1,6 +1,6 @@
 import { ApiType } from "../Utils/ApiType";
 import JsonResponse from "../Utils/JsonResponse";
-import AsyncBaseService from "./AsyncBaseService";
+import AcknowledgeService from "./AcknowledgeService";
 import { ServiceHandler } from "./BaseService";
 import OnAbortHandler from "./OnAbortHandler";
 
@@ -9,7 +9,7 @@ interface ChannelListResponse {
   status: string;
 }
 
-export default class ChannelListService extends AsyncBaseService {
+export default class ChannelListService extends AcknowledgeService {
   url: string = "/channelList";
   apiType = ApiType.GET;
 

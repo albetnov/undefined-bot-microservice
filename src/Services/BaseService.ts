@@ -9,6 +9,10 @@ export interface ServiceHandler {
   io: Server;
 }
 
+export interface SuccessResponse {
+  success: boolean;
+}
+
 export default abstract class BaseService {
   abstract apiType: ApiType;
   abstract url: string;
