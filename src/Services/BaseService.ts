@@ -1,5 +1,5 @@
 import { FastifyReply, FastifyRequest } from "fastify";
-import { Server, Socket } from "socket.io";
+import { Server } from "socket.io";
 import { ApiType } from "../Utils/ApiType";
 
 export interface ServiceHandler {
