@@ -41,4 +41,4 @@ server.ready().then(() => {
 server.listen({
   port: env.getInt("PORT", 3000),
 });
-logger.info("Listening on port: 3000");
+logger.info("Listening on port: " + env.safeGet("PORT", "3000"));
