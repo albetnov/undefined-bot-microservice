@@ -59,7 +59,7 @@ export default class PostBuilder {
 
     this.io.timeout(this.timeout).emit(this.name, json, (err: any, response: SuccessResponse[]) => {
       if (err) {
-        this.res.status(500).send(this.errMsg);
+        this.res.status(500).send({ error: this.errMsg });
       } else {
         this.res.send({ success: response[0].success || false });
       }
